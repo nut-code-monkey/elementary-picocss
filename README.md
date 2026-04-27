@@ -17,6 +17,8 @@
 
 ## Minimum example:
 ```swift
+import Elementary
+import PicoCSS
 PicoHTMLDocument(title: "My awesome page"){
     main {
         h1 { "Elementary page" }
@@ -26,6 +28,8 @@ PicoHTMLDocument(title: "My awesome page"){
 ```
 ## Login form:
 ```swift
+import Elementary
+import PicoCSS
 PicoHTMLDocument(title: "My awesome page", theme: .dark) {
     header {
         nav { ul { li { "Navigation header" } } }
