@@ -22,7 +22,7 @@ let package = Package(
         .target(
             name: "PicoCSS",
             dependencies: [
-//                .product(name: "Elementary", package: "elementary"),
+                .product(name: "Elementary", package: "elementary"),
             ]
         ),
         .testTarget(

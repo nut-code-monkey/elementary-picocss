@@ -61,10 +61,12 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
 ## Installation:
 `Package(... dependencies: [`
 ```swift
+    .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
     .package(url: "https://nut-code-monkey/elementary-picocss.git", branch: "main")
 ```
 `], targets: [.target( ... dependencies: [`
 ```swift
+        .product(name: "Elementary", package: "elementary"),
         .product(name: "PicoCSS", package: "elementary-picocss")
 ```
 `])])`
