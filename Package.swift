@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "PicoCSS",
+    name: "elementary-picocss",
     platforms: [
         .macOS(.v15)
     ],
