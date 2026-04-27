@@ -16,7 +16,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/elementary-swift/elementary.git", branch: "main"),
+        .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
     ],
     targets: [
         .target(
