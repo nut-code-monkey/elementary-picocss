@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "PicoCSS",
+    name: "elementary-picocss",
     platforms: [
         .macOS(.v15)
     ],
@@ -16,7 +16,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/elementary-swift/elementary.git", branch: "main"),
+        .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
     ],
     targets: [
         .target(
