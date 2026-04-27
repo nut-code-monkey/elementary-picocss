@@ -86,7 +86,7 @@ public extension HTMLAttribute where Tag: HTMLTrait.Attributes.outline {
 
 
 // MARK: - input
-extension HTMLVoidElement where Tag == HTMLTag.input {
+public extension HTMLVoidElement where Tag == HTMLTag.input {
     /// https://picocss.com/docs/forms/input#disabled
     func disabled(_ disabled: Bool, when condition: Bool = true) -> Self {
         attributes(.disabled, when: condition && disabled)
@@ -109,7 +109,7 @@ extension HTMLVoidElement where Tag == HTMLTag.input {
 }
 
 // MARK: - small validation helper
-extension HTMLElement where Tag == HTMLTag.small {
+public extension HTMLElement where Tag == HTMLTag.small {
     /// https://picocss.com/docs/forms/input#validation-states
     func validation(helper id: String) -> Self {
         attributes(.id(id))
