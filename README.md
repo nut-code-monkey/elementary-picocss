@@ -19,17 +19,20 @@
 ```swift
 import Elementary
 import PicoCSS
-PicoHTMLDocument(title: "My awesome page"){
+
+PicoHTMLDocument(title: "My awesome page") {
     main {
         h1 { "Elementary page" }
     }
     .centerViewport
-}.render()
+}
+.render()
 ```
 ## Login form:
 ```swift
 import Elementary
 import PicoCSS
+
 PicoHTMLDocument(title: "My awesome page", theme: .dark) {
     header {
         nav { ul { li { "Navigation header" } } }
@@ -51,7 +54,8 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
     }.centerViewport
 
     footer { "Some footer" }.centerViewport
-}.render()
+}
+.render()
 ```
 
 ## Installation:
@@ -61,6 +65,6 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
 ```
 `], targets: [.target( ... dependencies: [`
 ```swift
-        .product(name: "PicoCSS", package: "PicoCSS")
+        .product(name: "PicoCSS", package: "elementary-picocss")
 ```
 `])])`
