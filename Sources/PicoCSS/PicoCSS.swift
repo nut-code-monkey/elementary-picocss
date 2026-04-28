@@ -40,6 +40,7 @@ public extension HTMLAttribute where Tag: HTMLTrait.Attributes.readonly {
 }
 
 public extension HTMLVoidElement where Tag == HTMLTag.input {
+    /// https://picocss.com/docs/forms/input#readonly
     func readonly(when condition: Bool = true) -> Self {
         return attributes(.readonly, when: condition)
     }
@@ -106,13 +107,8 @@ public extension HTMLAttribute where Tag: HTMLTrait.Attributes.outline {
 // MARK: - input
 public extension HTMLVoidElement where Tag == HTMLTag.input {
     /// https://picocss.com/docs/forms/input#disabled
-    func disabled(_ disabled: Bool, when condition: Bool = true) -> Self {
-        attributes(.disabled, when: condition && disabled)
-    }
-    
-    /// https://picocss.com/docs/forms/input#readonly
-    func readonly(_ readonly: Bool, when condition: Bool = true) -> Self {
-        attributes(.readonly, when: condition && readonly)
+    func disabled(when condition: Bool = true) -> Self {
+        attributes(.disabled, when: condition)
     }
     
     /// https://picocss.com/docs/forms/input#validation-states
@@ -122,37 +118,43 @@ public extension HTMLVoidElement where Tag == HTMLTag.input {
 }
 
 public extension HTMLTrait {
-    protocol InvalidMessage {
-        func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML
+    protocol InvalidMessageTrait: HTML {
+        associatedtype Input: HTML
+        func invalid(ariaDescribedbyId: String, when condition: Bool) -> Input
     }
 }
 
-extension HTMLVoidElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.input {
+extension HTMLVoidElement: HTMLTrait.InvalidMessageTrait where Tag == HTMLTag.input {
     /// https://picocss.com/docs/forms/input#validation-states
     ///
     ///    input().invalid(message: "Some error text", when: validationFails)
     ///
-    public func invalid(message: String, when condition: Bool = true) ->
-    InvalidMessage<HTMLVoidElement<HTMLTag.input>> {
-        InvalidMessage(message: message, condition: condition, input: self)
+    public typealias Input =  HTMLVoidElement<Tag>
+    
+    public func invalid(message: String, id: String? = nil, when condition: Bool = true) -> InvalidMessage<Input> {
+        let id = id ?? String(UInt64.random(in: 0...UInt64.max), radix: 16)
+        return InvalidMessage(message: message, id: id, condition: condition, input: self)
     }
     
-    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML {
+    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> Input
+    {
         self.attributes(.ariaInvalid(true), when: condition)
             .attributes(.ariaDescribedby(ariaDescribedbyId), when: condition)
     }
 }
 
-extension HTMLElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.textarea {
+extension HTMLElement: HTMLTrait.InvalidMessageTrait where Tag == HTMLTag.textarea {
     ///
     ///    textarea {}.invalid(message: "Some error text", when: validationFails)
     ///
-    public func invalid(message: String, when condition: Bool = true) ->
-    InvalidMessage<HTMLElement<HTMLTag.textarea, Content>> {
-        InvalidMessage(message: message, condition: condition, input: self)
+    public typealias Input = HTMLElement<HTMLTag.textarea, Content>
+    
+    public func invalid(message: String, id: String? = nil, when condition: Bool = true) -> InvalidMessage<Input> {
+        let id = id ?? String(UInt64.random(in: 0...UInt64.max), radix: 16)
+        return InvalidMessage(message: message, id: id, condition: condition, input: self)
     }
     
-    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML {
+    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> Input {
         self.attributes(.ariaInvalid(true), when: condition)
             .attributes(.ariaDescribedby(ariaDescribedbyId), when: condition)
     }
@@ -162,20 +164,15 @@ extension HTMLElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.textarea {
 /// input().invalid(message: "Some error text", when: validationFails)
 /// textarea {}.invalid(message: "Some error text", when: validationFails)
 ///
-public struct InvalidMessage<Input: HTMLTrait.InvalidMessage>: HTML {
-    private let message: String
-    private let condition: Bool
-    private let input: Input
-    
-    init(message: String, condition: Bool, input: Input) {
-        self.message = message
-        self.condition = condition
-        self.input = input
-    }
-    
-    public var body: some HTML {
-        let id = String(UInt64.random(in: 0...UInt64.max), radix: 16)
-        HTMLRaw( input.invalid(ariaDescribedbyId: id, when: condition).render() )
+public struct InvalidMessage<Input>: HTML where Input: HTMLTrait.InvalidMessageTrait {
+    let message: String
+    let id: String
+    let condition: Bool
+    let input: Input
+
+    @HTMLBuilder public var body: some HTML {
+        input.invalid(ariaDescribedbyId: id, when: condition)
+
         if condition {
             small(.id(id)) { message }
         }
