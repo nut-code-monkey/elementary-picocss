@@ -1,4 +1,3 @@
-import Foundation
 import Elementary
 
 public extension HTMLTrait.Attributes {
@@ -124,7 +123,7 @@ public extension HTMLVoidElement where Tag == HTMLTag.input {
 
 public extension HTMLTrait {
     protocol InvalidMessage {
-        func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML
+        func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML
     }
 }
 
@@ -138,9 +137,9 @@ extension HTMLVoidElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.input {
         InvalidMessage(message: message, condition: condition, input: self)
     }
     
-    public func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML {
+    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML {
         self.attributes(.ariaInvalid(true), when: condition)
-            .attributes(.ariaDescribedby(ariaDescribedbyId.uuidString), when: condition)
+            .attributes(.ariaDescribedby(ariaDescribedbyId), when: condition)
     }
 }
 
@@ -153,9 +152,9 @@ extension HTMLElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.textarea {
         InvalidMessage(message: message, condition: condition, input: self)
     }
     
-    public func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML {
+    public func invalid(ariaDescribedbyId: String, when condition: Bool) -> any HTML {
         self.attributes(.ariaInvalid(true), when: condition)
-            .attributes(.ariaDescribedby(ariaDescribedbyId.uuidString), when: condition)
+            .attributes(.ariaDescribedby(ariaDescribedbyId), when: condition)
     }
 }
 
@@ -175,10 +174,10 @@ public struct InvalidMessage<Input: HTMLTrait.InvalidMessage>: HTML {
     }
     
     public var body: some HTML {
-        let id = UUID()
+        let id = String(UInt64.random(in: 0...UInt64.max), radix: 16)
         HTMLRaw( input.invalid(ariaDescribedbyId: id, when: condition).render() )
         if condition {
-            small(.id(id.uuidString)) { message }
+            small(.id(id)) { message }
         }
     }
 }

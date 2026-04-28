@@ -1,6 +1,6 @@
 import Elementary
 
-protocol BodyRenderer: HTML {
+public protocol BodyRenderer: HTML {
     static func _render<Renderer: _HTMLRendering>(_ html: consuming Self, into renderer: inout Renderer, with context: consuming _RenderingContext)
     
 #if !os(WASI)
@@ -8,7 +8,7 @@ protocol BodyRenderer: HTML {
 #endif
 }
 
-extension BodyRenderer {
+public extension BodyRenderer {
     static func _render<Renderer: _HTMLRendering>(
         _ html: consuming Self,
         into renderer: inout Renderer,
@@ -22,7 +22,7 @@ extension BodyRenderer {
     }
     
 #if !os(WASI)
-    public static func _render<Renderer: _HTMLRendering>(
+    static func _render<Renderer: _HTMLRendering>(
         _ html: consuming Self,
         into renderer: inout Renderer,
         with context: consuming _RenderingContext
