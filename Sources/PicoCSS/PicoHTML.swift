@@ -4,7 +4,7 @@ public struct PicoHTMLDocument<Head: HTML, Body: HTML>: BodyRenderer {
     public let _title: String
     public let lang: String?
     public let direction: HTMLAttributeValue.Direction?
-    public let theme: Theme?
+    public let _theme: Theme?
     public let _head: () -> Head
     public let _body: () -> Body
 
@@ -17,13 +17,17 @@ public struct PicoHTMLDocument<Head: HTML, Body: HTML>: BodyRenderer {
         @HTMLBuilder body: @escaping () -> Body
     ) {
         self._title = title
-        self.theme = theme
+        self._theme = theme
         self.lang = lang
         self.direction = direction
         self._body = body
         self._head = head
     }
-
+    
+    var theme: Theme {
+        _theme ?? .light
+    }
+    
     @HTMLBuilder
     public var body: some HTML {
         HTMLRaw("<!DOCTYPE html>")
@@ -38,7 +42,7 @@ public struct PicoHTMLDocument<Head: HTML, Body: HTML>: BodyRenderer {
             }
             Elementary.body(content: _body)
         }
-        .theme(theme)
+        .theme(theme, when: _theme != nil)
         .direction(direction)
         .lang(lang)
     }

@@ -1,35 +1,54 @@
+import Foundation
 import Elementary
-
-public enum Theme: String, Sendable {
-    case dark
-    case light
-}
-
-public extension HTMLElement {
-    func theme(_ theme: Theme?) -> Self {
-        guard let theme = theme else { return self }
-        return attributes(.custom(name: "data-theme", value: theme.rawValue))
-    }
-}
 
 public extension HTMLTrait.Attributes {
     protocol readonly {}
     protocol ariaInvalid {}
     protocol ariaDescribedby {}
     protocol `open` {}
-
     protocol secondary {}
     protocol contrast {}
     protocol outline {}
+    protocol theme {}
+}
+
+// MARK: - themes
+public enum Theme: String, Sendable {
+    case dark
+    case light
+}
+
+extension HTMLTag.html: HTMLTrait.Attributes.theme {}
+public extension HTMLAttribute where Tag: HTMLTrait.Attributes.theme {
+    static func theme(_ theme: Theme) -> Self {
+        HTMLAttribute(name: "data-theme", value: theme.rawValue)
+    }
+}
+
+public extension HTMLElement where Tag == HTMLTag.html {
+    func theme(_ theme: Theme, when condition: Bool = true) -> Self {
+        return attributes(.theme(theme), when: condition)
+    }
 }
 
 // MARK: - readonly attribute
 extension HTMLTag.input: HTMLTrait.Attributes.readonly {}
 extension HTMLTag.textarea: HTMLTrait.Attributes.readonly {}
-
 public extension HTMLAttribute where Tag: HTMLTrait.Attributes.readonly {
     static var readonly: Self {
         HTMLAttribute(name: "readonly", value: nil)
+    }
+}
+
+public extension HTMLVoidElement where Tag == HTMLTag.input {
+    func readonly(when condition: Bool = true) -> Self {
+        return attributes(.readonly, when: condition)
+    }
+}
+
+public extension HTMLElement where Tag == HTMLTag.textarea {
+    func readonly(when condition: Bool = true) -> Self {
+        return attributes(.readonly, when: condition)
     }
 }
 
@@ -38,8 +57,8 @@ extension HTMLTag.input: HTMLTrait.Attributes.ariaInvalid {}
 extension HTMLTag.textarea: HTMLTrait.Attributes.ariaInvalid {}
 
 public extension HTMLAttribute where Tag: HTMLTrait.Attributes.ariaInvalid {
-    static func ariaInvalid(_ isValid: Bool) -> Self {
-        HTMLAttribute(name: "aria-invalid", value: isValid ? "false" : "true")
+    static func ariaInvalid(_ invalid: Bool) -> Self {
+        HTMLAttribute(name: "aria-invalid", value: invalid ? "true" : "false")
     }
 }
 
@@ -47,7 +66,7 @@ public extension HTMLAttribute where Tag: HTMLTrait.Attributes.ariaInvalid {
 extension HTMLTag.input: HTMLTrait.Attributes.ariaDescribedby {}
 extension HTMLTag.textarea: HTMLTrait.Attributes.ariaDescribedby {}
 
-public extension HTMLAttribute where Tag: HTMLTrait.Attributes.ariaDescribedby {
+extension HTMLAttribute where Tag: HTMLTrait.Attributes.ariaDescribedby {
     static func ariaDescribedby(_ id: String) -> Self {
         HTMLAttribute(name: "aria-describedby", value: id)
     }
@@ -91,35 +110,84 @@ public extension HTMLVoidElement where Tag == HTMLTag.input {
     func disabled(_ disabled: Bool, when condition: Bool = true) -> Self {
         attributes(.disabled, when: condition && disabled)
     }
-
+    
     /// https://picocss.com/docs/forms/input#readonly
     func readonly(_ readonly: Bool, when condition: Bool = true) -> Self {
         attributes(.readonly, when: condition && readonly)
     }
-
+    
     /// https://picocss.com/docs/forms/input#validation-states
     func valid(_ isValid: Bool, when condition: Bool = true) -> Self {
-        attributes(.ariaInvalid(isValid), when: condition)
-    }
-
-    /// https://picocss.com/docs/forms/input#validation-states
-    func validation(helper id: String, when condition: Bool = true) -> Self {
-        attributes(.ariaDescribedby(id), when: condition)
+        attributes(.ariaInvalid(!isValid), when: condition)
     }
 }
 
-// MARK: - small validation helper
-public extension HTMLElement where Tag == HTMLTag.small {
-    /// https://picocss.com/docs/forms/input#validation-states
-    func validation(helper id: String) -> Self {
-        attributes(.id(id))
+public extension HTMLTrait {
+    protocol InvalidMessage {
+        func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML
     }
 }
+
+extension HTMLVoidElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.input {
+    /// https://picocss.com/docs/forms/input#validation-states
+    ///
+    ///    input().invalid(message: "Some error text", when: validationFails)
+    ///
+    public func invalid(message: String, when condition: Bool = true) ->
+    InvalidMessage<HTMLVoidElement<HTMLTag.input>> {
+        InvalidMessage(message: message, condition: condition, input: self)
+    }
+    
+    public func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML {
+        self.attributes(.ariaInvalid(true), when: condition)
+            .attributes(.ariaDescribedby(ariaDescribedbyId.uuidString), when: condition)
+    }
+}
+
+extension HTMLElement: HTMLTrait.InvalidMessage where Tag == HTMLTag.textarea {
+    ///
+    ///    textarea {}.invalid(message: "Some error text", when: validationFails)
+    ///
+    public func invalid(message: String, when condition: Bool = true) ->
+    InvalidMessage<HTMLElement<HTMLTag.textarea, Content>> {
+        InvalidMessage(message: message, condition: condition, input: self)
+    }
+    
+    public func invalid(ariaDescribedbyId: UUID, when condition: Bool) -> any HTML {
+        self.attributes(.ariaInvalid(true), when: condition)
+            .attributes(.ariaDescribedby(ariaDescribedbyId.uuidString), when: condition)
+    }
+}
+
+/// Usage:
+/// input().invalid(message: "Some error text", when: validationFails)
+/// textarea {}.invalid(message: "Some error text", when: validationFails)
+///
+public struct InvalidMessage<Input: HTMLTrait.InvalidMessage>: HTML {
+    private let message: String
+    private let condition: Bool
+    private let input: Input
+    
+    init(message: String, condition: Bool, input: Input) {
+        self.message = message
+        self.condition = condition
+        self.input = input
+    }
+    
+    public var body: some HTML {
+        let id = UUID()
+        HTMLRaw( input.invalid(ariaDescribedbyId: id, when: condition).render() )
+        if condition {
+            small(.id(id.uuidString)) { message }
+        }
+    }
+}
+
 
 // MARK: - textarea
 extension HTMLElement where Tag == HTMLTag.textarea {
     func valid(_ isValid: Bool, when condition: Bool = true) -> Self {
-        attributes(.ariaInvalid(isValid), when: condition)
+        attributes(.ariaInvalid(!isValid), when: condition)
     }
 
     func disabled(_ isDisabled: Bool, when condition: Bool = true) -> Self {
@@ -277,8 +345,8 @@ public struct FormGroup<Content: HTML>: BodyRenderer {
 }
 
 public extension HTMLElement {
-    public var group: Self { attributes(.role("group")) }
-    public var grid: Self { attributes(.class("grid")) }
+    var group: Self { attributes(.role("group")) }
+    var grid: Self { attributes(.class("grid")) }
 }
 
 // MARK: - form search
@@ -287,17 +355,14 @@ public extension HTMLElement where Tag == HTMLTag.form {
 //        input().search()
 //        input().submit("Search")
 //    }.search
-    public var search: Self { attributes(.role("search")) }
+    var search: Self { attributes(.role("search")) }
 }
 
 public extension HTMLVoidElement where Tag == HTMLTag.input {
-    @inlinable
-    public var required: Self {
-        attributes(.required)
-    }
+    @inlinable var required: Self { attributes(.required) }
 
     @inlinable
-    public func minlength(_ minlength: Int, tip: String? = nil) -> Self {
+    func minlength(_ minlength: Int, tip: String? = nil) -> Self {
         let defaultTip = "At least \(minlength) characters required."
         return attributes(
             .custom(name: "minlength", value: "\(minlength)"),
@@ -306,7 +371,7 @@ public extension HTMLVoidElement where Tag == HTMLTag.input {
     }
 
     @inlinable
-    public func alphanumeric(_ tip: String = "Only Latin letters and numbers are allowed") -> Self {
+    func alphanumeric(_ tip: String = "Only Latin letters and numbers are allowed") -> Self {
         attributes(
             .custom(name: "pattern", value: "[a-zA-Z0-9]+"),
             .title(tip)
@@ -314,75 +379,75 @@ public extension HTMLVoidElement where Tag == HTMLTag.input {
     }
 
     @inlinable
-    public func submit(_ title: String) -> Self {
+    func submit(_ title: String) -> Self {
         attributes(.type(.submit), .value(title))
     }
 
     @inlinable
-    public func ariaLabel(_ value: String) -> Self {
+    func ariaLabel(_ value: String) -> Self {
         attributes(.custom(name: "aria-label", value: value))
     }
 
     @inlinable
-    public func firstName(_ name: String = "first_name", placeholder: String = "First name") -> Self {
+    func firstName(_ name: String = "first_name", placeholder: String = "First name") -> Self {
         attributes(.name(name), .placeholder(placeholder), .autocomplete("given-name"))
     }
 
     // MARK: - https://picocss.com/docs/forms/input
     @inlinable
-    public func text(name: String = "text", placeholder: String) -> Self {
+    func text(name: String = "text", placeholder: String) -> Self {
         attributes(.type(.text), .name(name), .placeholder(placeholder)).ariaLabel("Text")
     }
 
     @inlinable
-    public func login(name: String = "login", placeholder: String = "Login") -> Self {
+    func login(name: String = "login", placeholder: String = "Login") -> Self {
         attributes(.name(name), .placeholder(placeholder), .autocomplete("username")).ariaLabel("Login")
     }
 
     @inlinable
-    public func email(name: String = "email", placeholder: String = "Email") -> Self {
+    func email(name: String = "email", placeholder: String = "Email") -> Self {
         attributes(.type(.email), .name(name), .placeholder(placeholder), .autocomplete("email")).ariaLabel("Email")
     }
 
     @inlinable
-    public func number(name: String = "number", placeholder: String = "Number") -> Self {
+    func number(name: String = "number", placeholder: String = "Number") -> Self {
         attributes(.type(.number), .name(name), .placeholder(placeholder)).ariaLabel("Number")
     }
 
     @inlinable
-    public func password(name: String = "password", placeholder: String = "Password") -> Self {
+    func password(name: String = "password", placeholder: String = "Password") -> Self {
         attributes(.type(.password), .name(name), .placeholder(placeholder)).ariaLabel("Password")
     }
 
     @inlinable
-    public func telephone(name: String = "tel", placeholder: String = "Tel") -> Self {
+    func telephone(name: String = "tel", placeholder: String = "Tel") -> Self {
         attributes(.type(.tel), .name(name), .placeholder(placeholder), .autocomplete("tel")).ariaLabel("Tel")
     }
 
     @inlinable
-    public func url(name: String = "url", placeholder: String = "Url") -> Self {
+    func url(name: String = "url", placeholder: String = "Url") -> Self {
         attributes(.type(.url), .name(name), .placeholder(placeholder)).ariaLabel("Url")
     }
 
     // MARK: - https://picocss.com/docs/forms/input#datetime
     @inlinable
-    public func date(name: String = "date") -> Self {
+    func date(name: String = "date") -> Self {
         attributes(.type(.date), .name(name)).ariaLabel("Date")
     }
 
     @inlinable
-    public func dateTime(name: String = "datetime-local") -> Self {
+    func dateTime(name: String = "datetime-local") -> Self {
         attributes(.type(.datetimeLocal), .name(name)).ariaLabel("Datetime local")
     }
 
     @inlinable
-    public func time(name: String = "time") -> Self {
+    func time(name: String = "time") -> Self {
         attributes(.type(.time), .name(name)).ariaLabel("Time")
     }
 
     // MARK: - https://picocss.com/docs/forms/input#search
     @inlinable
-    public func search(name: String = "search", placaholder: String = "Search") -> Self {
+    func search(name: String = "search", placaholder: String = "Search") -> Self {
         attributes(.type(.search), .name(name), .placeholder(placaholder)).ariaLabel("Search")
     }
 }

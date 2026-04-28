@@ -2,16 +2,14 @@ import Testing
 @testable import PicoCSS
 
 @Test func emptyPage() async throws {
-    let html = PicoHTML(title: "Hello") {} .render()
+    let html = PicoHTMLDocument(title: "Hello") {} .render()
     #expect(html == template(""))
 }
 
 @Test func fooPage() async throws {
-    let html = PicoHTML(title: "Hello") { "foo" } .render()
+    let html = PicoHTMLDocument(title: "Hello") { "foo" } .render()
     #expect(html == template("foo"))
 }
-
-
 
 
 func template(title: String = "Hello", _ html: String) -> String {

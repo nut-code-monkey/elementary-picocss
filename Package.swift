@@ -9,11 +9,7 @@ let package = Package(
         .macOS(.v15)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "PicoCSS",
-            targets: ["PicoCSS"]
-        ),
+        .library(name: "PicoCSS", targets: ["PicoCSS"]),
     ],
     dependencies: [
         .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),

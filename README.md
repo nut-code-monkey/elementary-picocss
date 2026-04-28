@@ -48,6 +48,7 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
             input().password()
                 .minlength(10)
                 .required
+                .invalid(message: "Must be at least 10 symbols")
 
             input().submit("Login")
         }.group
