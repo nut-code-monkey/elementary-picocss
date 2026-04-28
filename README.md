@@ -62,7 +62,7 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
 `Package(... dependencies: [`
 ```swift
     .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
-    .package(url: "https://nut-code-monkey/elementary-picocss.git", branch: "main")
+    .package(url: "https://github.com/nut-code-monkey/elementary-picocss.git", branch: "main")
 ```
 `], targets: [.target( ... dependencies: [`
 ```swift
