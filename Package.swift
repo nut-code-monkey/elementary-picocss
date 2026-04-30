@@ -12,6 +12,7 @@ let package = Package(
         .library(name: "PicoCSS", targets: ["PicoCSS"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),
         .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
     ],
     targets: [

@@ -21,7 +21,7 @@ public extension BodyRenderer {
         render(html.body, into: &renderer, with: context)
     }
     
-#if !os(WASI)
+#if !hasFeature(Embedded)
     static func _render<Renderer: _HTMLRendering>(
         _ html: consuming Self,
         into renderer: inout Renderer,
