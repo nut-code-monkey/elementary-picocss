@@ -34,6 +34,7 @@ By combining them, you get:
 - **Semantic HTML**: Leverages Pico’s philosophy of styling standard HTML elements.
 - **Dark Mode Ready**: Built-in support for light/dark color schemes.
 - **Layout Helpers**: Custom modifiers for centering viewports and grouping form elements.
+- **WebAssembly ready**: Write your WebASM app with [ElementaryUI](https://elementary.codes) and PicoCSS.
 
 ## 💻 Usage Examples
 ### 1. Simple Page:
