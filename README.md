@@ -41,8 +41,8 @@ Add `elementary-picocss` to your `Package.swift` dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com.git", from: "0.7.1"),
-    .package(url: "https://github.com", branch: "main")
+    .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
+    .package(url: "https://github.com/nut-code-monkey/elementary-picocss.git", branch: "main")
 ],
 targets: [
     .target(
