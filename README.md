@@ -13,7 +13,7 @@
   </a>
 </p>
 
-# A lightweight Swift bridge for [Pico.css](https://picocss.com) and the [Elementary](https://github.com/elementary-swift/elementary) HTML DSL. 
+# A lightweight Swift bridge for [Pico.css](https://picocss.com) and the [Elementary](https://github.com/elementary-swift/elementary)/[ElementaryUI](https://elementary.codes). 
 
 Build elegant, responsive, and theme-aware web interfaces in pure Swift without writing a single line of CSS.
 
@@ -36,6 +36,25 @@ By combining them, you get:
 - **Layout Helpers**: Custom modifiers for centering viewports and grouping form elements.
 - **WebAssembly ready**: Write your WebASM app with [ElementaryUI](https://elementary.codes) and PicoCSS.
 
+## 🛠 Installation:
+Add `elementary-picocss` to your `Package.swift` dependencies:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com.git", from: "0.7.1"),
+    .package(url: "https://github.com", branch: "main")
+],
+targets: [
+    .target(
+        name: "YourTarget",
+        dependencies: [
+            .product(name: "Elementary", package: "elementary"),
+            .product(name: "PicoCSS", package: "elementary-picocss")
+        ]
+    )
+]
+```
+
 ## 💻 Usage Examples
 ### 1. Simple Page:
 ```swift
@@ -44,7 +63,8 @@ import PicoCSS
 
 PicoHTMLDocument(title: "My awesome page") {
     main {
-        h1 { "Elementary page" }
+        h1 { "Hello, Elementary!" }
+        p { "This page is styled automatically with PicoCSS." }
     }
     .centerViewport
 }
@@ -79,23 +99,4 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
     footer { "Some footer" }.centerViewport
 }
 .render()
-```
-
-## 🛠 Installation:
-Add `elementary-picocss` to your `Package.swift` dependencies:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com.git", from: "0.7.1"),
-    .package(url: "https://github.com", branch: "main")
-],
-targets: [
-    .target(
-        name: "YourTarget",
-        dependencies: [
-            .product(name: "Elementary", package: "elementary"),
-            .product(name: "PicoCSS", package: "elementary-picocss")
-        ]
-    )
-]
 ```
