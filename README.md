@@ -13,9 +13,30 @@
   </a>
 </p>
 
-# [PicoCSS](https://picocss.com) for Swift [Elementary](https://github.com/elementary-swift/elementary) support
+# A lightweight Swift bridge for [Pico.css](https://picocss.com) and the [Elementary](https://github.com/elementary-swift/elementary) HTML DSL. 
 
-## Minimum example:
+Build elegant, responsive, and theme-aware web interfaces in pure Swift without writing a single line of CSS.
+
+## 📖 Why Pico + Elementary?
+
+**Elementary** is a high-performance HTML DSL for Swift. **Pico.css** is a "Classless" CSS framework that makes standard HTML look beautiful. 
+
+By combining them, you get:
+1. **Speed**: No heavy CSS frameworks to parse.
+2. **Readability**: Your Swift code describes exactly what the UI does.
+3. **Consistency**: Perfect for internal tools, prototypes, or minimalist blogs.
+
+
+## ✨ Features
+
+- **Type-Safe Styling**: Use Swift modifiers instead of error-prone string class names.
+- **Zero Config**: Pico.css is automatically linked; no build tools or PostCSS required.
+- **Semantic HTML**: Leverages Pico’s philosophy of styling standard HTML elements.
+- **Dark Mode Ready**: Built-in support for light/dark color schemes.
+- **Layout Helpers**: Custom modifiers for centering viewports and grouping form elements.
+
+## 💻 Usage Examples
+### 1. Simple Page:
 ```swift
 import Elementary
 import PicoCSS
@@ -28,7 +49,7 @@ PicoHTMLDocument(title: "My awesome page") {
 }
 .render()
 ```
-## Login form:
+### 2. Advanced Form with Validation:
 ```swift
 import Elementary
 import PicoCSS
@@ -59,15 +80,21 @@ PicoHTMLDocument(title: "My awesome page", theme: .dark) {
 .render()
 ```
 
-## Installation:
-`Package(... dependencies: [`
+## 🛠 Installation:
+Add `elementary-picocss` to your `Package.swift` dependencies:
+
 ```swift
-    .package(url: "https://github.com/elementary-swift/elementary.git", from: "0.7.1"),
-    .package(url: "https://github.com/nut-code-monkey/elementary-picocss.git", branch: "main")
+dependencies: [
+    .package(url: "https://github.com.git", from: "0.7.1"),
+    .package(url: "https://github.com", branch: "main")
+],
+targets: [
+    .target(
+        name: "YourTarget",
+        dependencies: [
+            .product(name: "Elementary", package: "elementary"),
+            .product(name: "PicoCSS", package: "elementary-picocss")
+        ]
+    )
+]
 ```
-`], targets: [.target( ... dependencies: [`
-```swift
-        .product(name: "Elementary", package: "elementary"),
-        .product(name: "PicoCSS", package: "elementary-picocss")
-```
-`])])`
